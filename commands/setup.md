@@ -318,7 +318,7 @@ echo "Configuration Files:"
 echo "  ~/.claude/plugins/marketplaces/kf-cli/  (plugin)"
 echo "  .claude/config.local.json                (vault config)"
 echo ""
-echo "Need help? https://github.com/CYH928/kf-cli"
+echo "Need help? https://github.com/ZorCorp/kf-cli"
 echo ""
 ```
 

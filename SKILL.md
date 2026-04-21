@@ -13,8 +13,8 @@ allowed-tools:
   - SlashCommand(*)
 metadata:
   version: "0.6.0"
-  repository: https://github.com/CYH928/kf-cli
-  homepage: https://github.com/CYH928/kf-cli
+  repository: https://github.com/ZorCorp/kf-cli
+  homepage: https://github.com/ZorCorp/kf-cli
 ---
 
 # Obsidian Vault Manager (CLI-Native)

@@ -12,19 +12,19 @@
 #     admin rights or Developer Mode
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/CYH928/kf-cli/master/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/ZorCorp/kf-cli/master/install.sh | bash
 #   curl -fsSL .../install.sh | bash -s -- --update
 #   curl -fsSL .../install.sh | bash -s -- --uninstall
 #   curl -fsSL .../install.sh | bash -s -- --no-link       # skip the symlink step
 #   curl -fsSL .../install.sh | bash -s -- --force-link    # symlink even if tool dir absent
 #
 # Advanced: override the source tarball (e.g. to test a feature branch)
-#   REPO_TARBALL=https://github.com/CYH928/kf-cli/archive/refs/heads/my-branch.tar.gz \
+#   REPO_TARBALL=https://github.com/ZorCorp/kf-cli/archive/refs/heads/my-branch.tar.gz \
 #     bash install.sh
 
 set -euo pipefail
 
-REPO_TARBALL="${REPO_TARBALL:-https://github.com/CYH928/kf-cli/archive/refs/heads/master.tar.gz}"
+REPO_TARBALL="${REPO_TARBALL:-https://github.com/ZorCorp/kf-cli/archive/refs/heads/master.tar.gz}"
 INSTALL_DIR="$HOME/.agents/skills/kf-cli"
 TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 BACKUP_DIR="$HOME/.agents/skills/kf-cli.bak-$TIMESTAMP"

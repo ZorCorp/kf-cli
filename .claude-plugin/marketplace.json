@@ -7,7 +7,7 @@
   "metadata": {
     "description": "KnowledgeFactory CLI - Native CLI tools, no Docker/MCP required",
     "version": "0.6.0",
-    "repository": "https://github.com/CYH928/kf-cli",
+    "repository": "https://github.com/ZorCorp/kf-cli",
     "license": "MIT",
     "keywords": [
       "knowledge-management",

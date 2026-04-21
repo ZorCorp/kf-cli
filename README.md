@@ -24,20 +24,20 @@ kf-cli follows the [Agent Skills specification](https://agentskills.io) — `SKI
 ### Option 1 — `npx skills add` (**recommended**)
 
 ```bash
-npx skills add CYH928/kf-cli
+npx skills add ZorCorp/kf-cli
 ```
 
 Installs the real files to `~/.agents/skills/kf-cli/` and creates symlinks in each detected AI tool's skills directory (`.claude/skills/`, `.gemini/skills/`, `.codex/skills/`, `.cursor/skills/`, `.copilot/skills/`) pointing back to the canonical location. Add `-g` for a user-wide install that every project inherits.
 
 Tell any AI agent to install it:
 
-> Install the Agent Skill at github.com/CYH928/kf-cli using `npx skills add CYH928/kf-cli`.
+> Install the Agent Skill at github.com/ZorCorp/kf-cli using `npx skills add ZorCorp/kf-cli`.
 
 Update / uninstall:
 
 ```bash
-npx skills update CYH928/kf-cli   # pull latest, symlinks unchanged
-npx skills remove CYH928/kf-cli   # remove skill + all links
+npx skills update ZorCorp/kf-cli   # pull latest, symlinks unchanged
+npx skills remove ZorCorp/kf-cli   # remove skill + all links
 ```
 
 **Windows (Git Bash):** if symlinks fail silently, `npx skills` falls back to NTFS junctions (`mklink /J`) — no admin rights or Developer Mode required.
@@ -45,14 +45,14 @@ npx skills remove CYH928/kf-cli   # remove skill + all links
 ### Option 2 — `gh skill install` (GitHub CLI 2.90.0+)
 
 ```bash
-gh skill install CYH928/kf-cli
+gh skill install ZorCorp/kf-cli
 ```
 
 `gh skill` is **copy mode** (not symlinks), with interactive prompts for target agent and scope. Each agent ends up with its own copy. Good fit if you already use the `gh` workflow or prefer GitHub-signed release metadata.
 
 Tell any AI agent to install it:
 
-> Install the Agent Skill at github.com/CYH928/kf-cli using `gh skill install CYH928/kf-cli`.
+> Install the Agent Skill at github.com/ZorCorp/kf-cli using `gh skill install ZorCorp/kf-cli`.
 
 ### Option 3 — Claude Code plugin marketplace (Claude Code only)
 
@@ -68,7 +68,7 @@ This path doesn't use `~/.agents/skills/` — Claude Code's plugin manager owns 
 ### Option 4 — Shell installer (no npx / gh dependency)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CYH928/kf-cli/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ZorCorp/kf-cli/master/install.sh | bash
 ```
 
 Same canonical architecture as Option 1 — installs to `~/.agents/skills/kf-cli/` and symlinks all detected tool dirs. Use this only if `npx` is unavailable in your environment.
@@ -210,7 +210,7 @@ The model is always chosen by the invoker, never by the skill.
 
 ## Contributing
 
-Source: `github.com/CYH928/kf-cli`. PRs welcome. Before submitting:
+Source: `github.com/ZorCorp/kf-cli`. PRs welcome. Before submitting:
 
 ```bash
 # Audit checks — must all pass
