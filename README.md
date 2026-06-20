@@ -182,6 +182,7 @@ This is **optional** and **Obsidian-specific**. Skip it if you don't use Obsidia
 | Command | Description |
 |---|---|
 | `/kf-cli:capture <content>` | Smart router — YouTube, GitHub, URL, or text |
+| `/kf-cli:watch <url>` | YouTube note with visual learning analysis |
 | `/kf-cli:youtube-note <url>` | YouTube note with transcript and curriculum |
 | `/kf-cli:idea <text>` | Quick idea capture with AI tagging |
 | `/kf-cli:gitingest <github-url>` | GitHub repo analysis digest |

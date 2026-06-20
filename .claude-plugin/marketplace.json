@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "KnowledgeFactory CLI - Native CLI tools, no Docker/MCP required",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "repository": "https://github.com/ZorCorp/kf-cli",
     "license": "MIT",
     "keywords": [
@@ -27,6 +27,7 @@
       "strict": false,
       "commands": [
         "./commands/capture.md",
+        "./commands/watch.md",
         "./commands/youtube-note.md",
         "./commands/idea.md",
         "./commands/gitingest.md",

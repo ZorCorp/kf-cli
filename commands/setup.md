@@ -259,7 +259,7 @@ if [[ "$ARGUMENTS" == *"--enable-short-commands"* ]]; then
 
     # Copy each command
     COPIED=0
-    for cmd in capture.md youtube-note.md idea.md gitingest.md study-guide.md publish.md semantic-search.md share.md; do
+    for cmd in capture.md watch.md youtube-note.md idea.md gitingest.md study-guide.md publish.md semantic-search.md share.md; do
         if [[ -f "$PLUGIN_COMMANDS/$cmd" ]]; then
             cp "$PLUGIN_COMMANDS/$cmd" "$VAULT_COMMANDS/$cmd"
             echo "  ✅ /${cmd%.md}"
@@ -300,6 +300,7 @@ echo "========================================"
 echo ""
 echo "Available Commands:"
 echo "  /kf-cli:capture        - Universal content capture"
+echo "  /kf-cli:watch          - YouTube video with visual learning notes"
 echo "  /kf-cli:youtube-note   - YouTube video with transcript"
 echo "  /kf-cli:idea           - Quick idea capture"
 echo "  /kf-cli:gitingest      - GitHub repository analysis"

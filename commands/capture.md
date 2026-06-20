@@ -17,7 +17,7 @@ Analyze the input and delegate to the appropriate command. **Check patterns in t
 
 | Priority | Content Type | Pattern | Delegate To |
 |----------|--------------|---------|-------------|
-| 1 | **YouTube** | Domain is `youtube.com` or `youtu.be` | `/kf-cli:youtube-note` |
+| 1 | **YouTube** | Domain is `youtube.com` or `youtu.be` | `/kf-cli:watch` |
 | 2 | **GitHub** | Domain is `github.com` | `/kf-cli:gitingest` |
 | 3 | **Long Article** | Input length > 1000 chars OR contains keywords like "article", "blog", "comprehensive" | `/kf-cli:article` |
 | 4 | **Web Article** | Other `http://` or `https://` URL | `/kf-cli:study-guide` |
@@ -29,7 +29,7 @@ Analyze the input and delegate to the appropriate command. **Check patterns in t
 **Pattern**: URL contains `youtube.com` or `youtu.be`
 
 ```
-SlashCommand("/kf-cli:youtube-note $ARGUMENTS")
+SlashCommand("/kf-cli:watch $ARGUMENTS")
 ```
 
 ### 2. GitHub URLs
@@ -64,7 +64,7 @@ SlashCommand("/kf-cli:idea $ARGUMENTS")
 
 ```
 /kf-cli:capture https://youtube.com/watch?v=abc123
-→ Delegates to: /kf-cli:youtube-note https://youtube.com/watch?v=abc123
+→ Delegates to: /kf-cli:watch https://youtube.com/watch?v=abc123
 
 /kf-cli:capture https://github.com/anthropics/claude-code
 → Delegates to: /kf-cli:gitingest https://github.com/anthropics/claude-code
@@ -82,6 +82,6 @@ SlashCommand("/kf-cli:idea $ARGUMENTS")
 ## Important
 
 - This command is a **router only** - it does NOT process content directly
-- Each handler (`/kf-cli:youtube-note`, `/kf-cli:gitingest`, `/kf-cli:study-guide`, `/kf-cli:idea`) has its own template and logic
+- Each handler (`/kf-cli:watch`, `/kf-cli:youtube-note`, `/kf-cli:gitingest`, `/kf-cli:study-guide`, `/kf-cli:idea`) has its own template and logic
 - After detecting content type, immediately delegate using `SlashCommand`
 - Always use `/kf-cli:` prefixed commands to ensure plugin templates are used

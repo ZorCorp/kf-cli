@@ -12,7 +12,7 @@ allowed-tools:
   - Task(*)
   - SlashCommand(*)
 metadata:
-  version: "0.6.0"
+  version: "0.6.1"
   repository: https://github.com/ZorCorp/kf-cli
   homepage: https://github.com/ZorCorp/kf-cli
 ---
@@ -106,6 +106,8 @@ Intelligently route content based on type and create properly tagged notes.
 - **Thumbnail**: `curl -sI` to check resolution availability (maxresdefault → sddefault → hqdefault → mqdefault)
 - **Template**: `templates/youtube-note-template.md`
 - **Save**: Write tool to vault path
+
+Use `/kf-cli:watch` for learning-focused YouTube capture; use `/kf-cli:youtube-note` for transcript-first reference notes.
 
 **Process:**
 1. Extract VIDEO_ID from URL

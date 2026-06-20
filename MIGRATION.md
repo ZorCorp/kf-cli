@@ -52,7 +52,7 @@ kf-cli installs as a separate Claude Code plugin. No changes to your existing kf
 /kf-cli:idea Test idea to verify kf-cli is working
 
 # Try YouTube capture
-/kf-cli:youtube-note https://youtube.com/watch?v=VIDEO_ID
+/kf-cli:watch https://youtube.com/watch?v=VIDEO_ID
 
 # Try GitHub analysis
 /kf-cli:gitingest https://github.com/owner/repo
@@ -68,6 +68,7 @@ Every kf-claude command has a 1:1 equivalent in kf-cli. Just change the prefix.
 |---|---|---|
 | `/kf-claude:capture` | `/kf-cli:capture` | Same routing logic |
 | `/kf-claude:youtube-note` | `/kf-cli:youtube-note` | Uses yt-dlp + uvx instead of MCP get_video_info/get_transcript |
+| (none) | `/kf-cli:watch` | New learning-focused YouTube workflow; no kf-claude equivalent |
 | `/kf-claude:gitingest` | `/kf-cli:gitingest` | Uses `gh api` instead of MCP GitHub tools |
 | `/kf-claude:article` | `/kf-cli:article` | Uses WebFetch/curl instead of MCP fetch |
 | `/kf-claude:idea` | `/kf-cli:idea` | Uses Write tool instead of MCP obsidian_* |
