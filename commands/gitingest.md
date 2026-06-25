@@ -48,11 +48,11 @@ Analyze GitHub repositories using the `gh` CLI and create LLM-optimized markdown
 ## Implementation Details
 
 **This command uses the `gh` CLI for GitHub access:**
-1. **Repository info**: `gh api /repos/{owner}/{repo}`
-2. **File tree**: `gh api /repos/{owner}/{repo}/git/trees/{branch}?recursive=1`
-3. **File contents**: `gh api /repos/{owner}/{repo}/contents/{path}`
-4. **Commits**: `gh api /repos/{owner}/{repo}/commits?per_page=10`
-5. **Branches**: `gh api /repos/{owner}/{repo}/branches`
+1. **Repository info**: `gh api "/repos/{owner}/{repo}"`
+2. **File tree**: `gh api "/repos/{owner}/{repo}/git/trees/{branch}?recursive=1"`
+3. **File contents**: `gh api "/repos/{owner}/{repo}/contents/{path}"`
+4. **Commits**: `gh api "/repos/{owner}/{repo}/commits?per_page=10"`
+5. **Branches**: `gh api "/repos/{owner}/{repo}/branches"`
 
 **Authentication:**
 - Uses your existing `gh` CLI authentication
@@ -70,7 +70,7 @@ The command will:
 
 1. **Parse GitHub URL** to extract owner and repository name
 2. **Fetch repository info** using `gh api /repos/{owner}/{repo}`
-3. **Fetch file tree** using `gh api /repos/{owner}/{repo}/git/trees/{default_branch}?recursive=1`
+3. **Fetch file tree** using `gh api "/repos/{owner}/{repo}/git/trees/{default_branch}?recursive=1"`
 4. **Filter files** based on `--focus` mode (if specified)
 5. **Read file contents** for key files using `gh api /repos/{owner}/{repo}/contents/{path}` (base64 decode the content field)
 6. **Collect metadata**:
@@ -178,17 +178,14 @@ visibility: <public|private>
 - **gh not authenticated**: Run `gh auth login` to authenticate
 - **Invalid URL**: Provide full GitHub URL format
 
-## After Saving: Update Wiki Index
+## After Saving: Index the Note
 
-Once the note file is written, update the wiki immediately:
+Run the indexer with the exact file path used when saving:
 
-1. Read the saved note's `tags` list from its YAML frontmatter
-2. Read `CLAUDE.md` in the vault root and find the **Tag → Topic Mapping** table
-3. For each tag, look up the matching wiki file path in the table
-4. For each matched wiki file:
-   - If it doesn't exist yet, create it with a `# [Topic]` heading and a `## Notes` section
-   - Append: `- [[notes/FILENAME|TITLE]] — one-sentence description`
-5. If any matched topic file was newly created, add an entry for it in `wiki/_master-index.md`
-6. If no tags match the table, route to the most relevant existing topic based on the note's content
+```bash
+SCRIPT=$(find "$HOME/.claude/plugins" -path "*/kf-cli/hooks/scripts/index-note.sh" 2>/dev/null | head -1)
+[[ -n "$SCRIPT" ]] && bash "$SCRIPT" "/absolute/path/to/saved/note.md"
+```
 
-**This step is required after every capture. Do not skip it.**
+Replace `/absolute/path/to/saved/note.md` with the actual absolute path of the note just saved.
+The script reads the note's tags, looks up the Tag → Topic mapping in `CLAUDE.md`, and updates the wiki automatically.

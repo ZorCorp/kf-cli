@@ -1,8 +1,8 @@
 ---
 title: "{{TITLE}}"
 tags: [video, {{TOPIC_TAGS}}, inbox, {{METADATA_TAGS}}]
-url: https://www.youtube.com/watch?v={{VIDEO_ID}}
-cover: https://i.ytimg.com/vi/{{VIDEO_ID}}/{{THUMBNAIL}}
+url: {{VIDEO_URL}}
+cover: {{COVER_URL}}
 date: {{DATE}}
 type: video
 status: inbox
@@ -11,19 +11,20 @@ priority: {{PRIORITY}}
 duration: {{DURATION}}
 video_date: {{VIDEO_DATE}}
 channel: {{CHANNEL}}
+platform: {{PLATFORM}}
 watch_mode: {{WATCH_MODE}}
 ---
 
 # {{TITLE}}
 
-[![Watch on YouTube](https://i.ytimg.com/vi/{{VIDEO_ID}}/{{THUMBNAIL}})](https://www.youtube.com/watch?v={{VIDEO_ID}})
+[![Watch Video]({{COVER_URL}})]({{VIDEO_URL}})
 
 ## 📖 About This Video
 
 {{DESCRIPTION}}
 
 **Channel**: {{CHANNEL}}
-**URL**: https://www.youtube.com/watch?v={{VIDEO_ID}}
+**URL**: {{VIDEO_URL}}
 **Analysis mode**: {{WATCH_MODE}}
 
 ## 🔬 Hook Microscope (First 10 Seconds)
@@ -114,7 +115,7 @@ After completion:
 ---
 
 **Captured**: {{DATE}}
-**Source**: https://www.youtube.com/watch?v={{VIDEO_ID}}
+**Source**: {{VIDEO_URL}}
 **Channel**: {{CHANNEL}}
 
 **Connection to Other Notes:**

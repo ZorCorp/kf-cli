@@ -2,6 +2,25 @@
 
 All notable changes to kf-cli will be documented in this file.
 
+## [0.7.1] - 2026-06-24
+
+### Deprecated
+- **`/kf-cli:youtube-note`** is deprecated in favour of **`/kf-cli:watch`**, which handles YouTube *and* any other public/shareable video URL, auto-detects instructional vs meeting content, and adds visual frame analysis when `claude-watch` is available. `youtube-note` still works for backward compatibility and may be removed in a future release. Added a deprecation banner to the command and flagged it across `README.md`, `COMMANDS.md`, `commands/setup.md`, and the vault-skeleton routing note.
+
+## [0.7.0] - 2026-06-24
+
+### Added
+- **Any-video-URL support**, verified end-to-end against a Zoom cloud recording. `/watch` now handles any public/shareable video URL yt-dlp can reach — YouTube, Vimeo, Loom, Zoom recordings, Twitch, TikTok, and ~1800 other sites.
+- **Content-type detection + meeting template**: `/watch` classifies the video as *instructional* (lecture/tutorial/talk) or *meeting* (call/standup/interview/recorded session) and picks the matching template — new `templates/meeting-note-template.md` (participants, decisions, action items, timeline) vs the existing learning-focused `watch-note-template.md`.
+- **yt-dlp probe routing** in `/capture`: unknown `http(s)` URLs that miss the fast-path video-domain list are probed with `yt-dlp --simulate`; if recognised as video they route to `/watch`, otherwise they fall through to article handling. Added `Bash` to `capture.md` allowed-tools. Fast-path list extended with `zoom.us`/`zoom.com`.
+
+### Fixed
+- **No-thumbnail graceful degradation**: platforms that return no thumbnail (Zoom, Loom, Drive) no longer produce a broken `![]()` embed or a failed `curl` on an empty URL — the cover frontmatter is left blank and the body uses a plain watch link.
+- Meeting recordings default to **transcript-only**, skipping the large (often 100MB+) frame download that adds little for talking-head/screen-share video.
+
+### Changed
+- Descriptions across `SKILL.md`, `README.md`, `plugin.json`, `marketplace.json`, and the `/watch` + `/capture` command frontmatter now state the any-video-URL capability honestly (login-gated / unshared-passcode video remains unsupported).
+
 ## [0.6.1] - 2026-04-21
 
 ### Added

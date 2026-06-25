@@ -67,7 +67,7 @@ Apply these when tagging new captures. Add your own as needed.
 
 ## Common operations
 
-- **Capture** new content → `/kf-cli:capture <url-or-text>` (routes to watch / youtube-note / gitingest / article / idea / study-guide)
+- **Capture** new content → `/kf-cli:capture <url-or-text>` (routes to watch / gitingest / article / idea / study-guide)
 - **Compile** raw material → process files in `raw/`, synthesize into `wiki/`, cross-link
 - **Audit** → review `wiki/` for broken links, inconsistencies, gaps; propose fixes
 - **Answer questions** → read `wiki/_master-index.md` first, drill into the relevant topic, then specific articles

@@ -26,11 +26,11 @@ Task tool call:
   prompt: |
     Publish the note "$ARGUMENTS" to GitHub Pages.
 
-    Run this command:
+    Run this command (locate the script dynamically — the plugin may live under a marketplace):
     ```bash
-    PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/kf-cli"
+    PUBLISH_SCRIPT=$(find "$HOME/.claude/plugins" -maxdepth 7 -path "*/kf-cli/scripts/core/publish.sh" 2>/dev/null | head -1)
     VAULT_PATH="${KF_VAULT_PATH:-$HOME/Documents/Obsidian/myrag}"
-    "$PLUGIN_DIR/scripts/core/publish.sh" "$ARGUMENTS" "$VAULT_PATH"
+    bash "$PUBLISH_SCRIPT" "$ARGUMENTS" "$VAULT_PATH"
     ```
 
     After the script completes, check the output:

@@ -1,6 +1,6 @@
 # kf-cli — Obsidian Knowledge Capture for Claude Code & OpenClaw
 
-A skill package that captures YouTube videos, articles, ideas, and GitHub repos into an Obsidian vault with AI auto-tagging. Publishes to GitHub Pages. No Docker. No MCP. Just CLI tools.
+A skill package that captures any public/shareable video URL (YouTube, Vimeo, Loom, Zoom recordings, Twitch, TikTok, and any yt-dlp-supported site), articles, ideas, and GitHub repos into an Obsidian vault with AI auto-tagging. Publishes to GitHub Pages. No Docker. No MCP. Just CLI tools.
 
 kf-cli is a **pure skill**: it exposes commands and templates only. Identity (who the agent is) and model choice (how it thinks) live in the agent or runtime that invokes the skill.
 
@@ -181,9 +181,9 @@ This is **optional** and **Obsidian-specific**. Skip it if you don't use Obsidia
 
 | Command | Description |
 |---|---|
-| `/kf-cli:capture <content>` | Smart router — YouTube, GitHub, URL, or text |
-| `/kf-cli:watch <url>` | YouTube note with visual learning analysis |
-| `/kf-cli:youtube-note <url>` | YouTube note with transcript and curriculum |
+| `/kf-cli:capture <content>` | Smart router — any video URL, GitHub, article URL, or text |
+| `/kf-cli:watch <url>` | Note from any video URL (YouTube, Vimeo, Loom, Zoom recordings, …); auto-picks instructional vs meeting template |
+| `/kf-cli:youtube-note <url>` | _Deprecated_ — use `/kf-cli:watch`. YouTube-only transcript note kept for backward compatibility |
 | `/kf-cli:idea <text>` | Quick idea capture with AI tagging |
 | `/kf-cli:gitingest <github-url>` | GitHub repo analysis digest |
 | `/kf-cli:study-guide <source>` | Comprehensive study guide |

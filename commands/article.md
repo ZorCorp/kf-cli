@@ -140,17 +140,14 @@ Always include at least one topic tag from this list so the note routes to the c
 - **Tags in frontmatter ONLY** - never write tags as `**Tags:** #foo` in the body
 - **Use subagent for image** - always spawn with `mode: "bypassPermissions"` to avoid background permission denial
 
-## After Saving: Update Wiki Index
+## After Saving: Index the Note
 
-Once the note file is written, update the wiki immediately:
+Run the indexer with the exact file path used when saving:
 
-1. Read the saved note's `tags` list from its YAML frontmatter
-2. Read `CLAUDE.md` in the vault root and find the **Tag → Topic Mapping** table
-3. For each tag, look up the matching wiki file path in the table
-4. For each matched wiki file:
-   - If it doesn't exist yet, create it with a `# [Topic]` heading and a `## Notes` section
-   - Append: `- [[notes/FILENAME|TITLE]] — one-sentence description`
-5. If any matched topic file was newly created, add an entry for it in `wiki/_master-index.md`
-6. If no tags match the table, route to the most relevant existing topic based on the note's content
+```bash
+SCRIPT=$(find "$HOME/.claude/plugins" -path "*/kf-cli/hooks/scripts/index-note.sh" 2>/dev/null | head -1)
+[[ -n "$SCRIPT" ]] && bash "$SCRIPT" "/absolute/path/to/saved/note.md"
+```
 
-**This step is required after every capture. Do not skip it.**
+Replace `/absolute/path/to/saved/note.md` with the actual absolute path of the note just saved.
+The script reads the note's tags, looks up the Tag → Topic mapping in `CLAUDE.md`, and updates the wiki automatically.

@@ -257,14 +257,38 @@ if [[ "$ARGUMENTS" == *"--enable-short-commands"* ]]; then
     VAULT_COMMANDS=".claude/commands"
     mkdir -p "$VAULT_COMMANDS"
 
-    # Copy each command
+    # Generate a thin DELEGATING WRAPPER for each command (not a copy).
+    # Wrappers forward to /kf-cli:<name> so all logic stays in the plugin and
+    # the short commands never drift when kf-cli is updated.
     COPIED=0
     for cmd in capture.md watch.md youtube-note.md idea.md gitingest.md study-guide.md publish.md semantic-search.md share.md; do
-        if [[ -f "$PLUGIN_COMMANDS/$cmd" ]]; then
-            cp "$PLUGIN_COMMANDS/$cmd" "$VAULT_COMMANDS/$cmd"
-            echo "  ✅ /${cmd%.md}"
-            COPIED=$((COPIED + 1))
-        fi
+        src="$PLUGIN_COMMANDS/$cmd"
+        [[ -f "$src" ]] || continue
+        name="${cmd%.md}"
+        # Carry over description + argument-hint from the plugin command's frontmatter
+        desc=$(awk '/^---$/{c++; next} c==1 && /^description:/{sub(/^description: /,""); print; exit}' "$src")
+        hint=$(awk '/^---$/{c++; next} c==1 && /^argument-hint:/{sub(/^argument-hint: /,""); print; exit}' "$src")
+        {
+            echo "---"
+            echo "description: $desc"
+            [[ -n "$hint" ]] && echo "argument-hint: $hint"
+            echo "allowed-tools:"
+            echo "  - SlashCommand(*)"
+            echo "---"
+            echo ""
+            echo "## Delegating wrapper"
+            echo ""
+            echo "Thin wrapper — all logic lives in \`/kf-cli:$name\` (single source of truth)."
+            echo "Do not add implementation here; it would drift on plugin updates."
+            echo ""
+            echo "Immediately delegate, forwarding all arguments verbatim:"
+            echo ""
+            echo '```'
+            echo "SlashCommand(\"/kf-cli:$name \$ARGUMENTS\")"
+            echo '```'
+        } > "$VAULT_COMMANDS/$cmd"
+        echo "  ✅ /$name"
+        COPIED=$((COPIED + 1))
     done
     if (( COPIED == 0 )); then
         echo "❌ No command files found in $PLUGIN_COMMANDS"
@@ -300,8 +324,8 @@ echo "========================================"
 echo ""
 echo "Available Commands:"
 echo "  /kf-cli:capture        - Universal content capture"
-echo "  /kf-cli:watch          - YouTube video with visual learning notes"
-echo "  /kf-cli:youtube-note   - YouTube video with transcript"
+echo "  /kf-cli:watch          - Any video URL (YouTube, Vimeo, Loom, Zoom, ...) → note"
+echo "  /kf-cli:youtube-note   - [deprecated] use /kf-cli:watch instead"
 echo "  /kf-cli:idea           - Quick idea capture"
 echo "  /kf-cli:gitingest      - GitHub repository analysis"
 echo "  /kf-cli:study-guide    - Generate study materials"

@@ -64,10 +64,16 @@ elif [[ -f "$VAULT_PATH/notes/$NOTE_FILE" ]]; then
     NOTE_FILE="notes/$NOTE_FILE"
     echo "ℹ️  Found note in notes/ subfolder"
 else
-    echo "❌ Error: File not found: $NOTE_FILE"
-    echo "   Searched: $VAULT_PATH/$NOTE_FILE"
-    echo "          and $VAULT_PATH/notes/$NOTE_FILE"
-    exit 1
+    # Fallback: search vault recursively (handles KFE/, HK-K12-AI-Training/, etc.)
+    FOUND=$(find "$VAULT_PATH" -maxdepth 4 -name "$NOTE_FILE" -not -path "*/.git/*" 2>/dev/null | head -1)
+    if [[ -n "$FOUND" ]]; then
+        NOTE_FILE="${FOUND#$VAULT_PATH/}"
+        echo "ℹ️  Found note at: $NOTE_FILE"
+    else
+        echo "❌ Error: File not found: $NOTE_FILE"
+        echo "   Searched vault recursively (maxdepth 4)"
+        exit 1
+    fi
 fi
 
 # Check if sharehub exists
@@ -87,8 +93,19 @@ DEST_NOTE_FILE="${NOTE_FILE#notes/}"
 # ── Extract and copy referenced images ────────────────────────────────────────
 cd "$VAULT_PATH"
 
-# Find all local image references (macOS compatible)
-IMAGE_PATHS=$(grep -o '!\[[^]]*\]([^)]*\.\(jpg\|jpeg\|png\|gif\|svg\|webp\))' "$NOTE_FILE" | sed 's/.*(\(.*\))/\1/' || true)
+# Find all local image references — standard markdown AND Obsidian wikilinks
+IMAGE_PATHS=$(python3 -c "
+import re, sys
+content = open(sys.argv[1]).read()
+exts = r'\.(?:jpg|jpeg|png|gif|svg|webp)'
+seen = set()
+for m in re.finditer(r'!\[[^\]]*\]\(([^)]+' + exts + r')\)', content, re.IGNORECASE):
+    p = m.group(1)
+    if p not in seen: seen.add(p); print(p)
+for m in re.finditer(r'!\[\[([^\]]+' + exts + r')\]\]', content, re.IGNORECASE):
+    p = m.group(1)
+    if p not in seen: seen.add(p); print(p)
+" "$NOTE_FILE" 2>/dev/null || true)
 
 if [[ -n "$IMAGE_PATHS" ]]; then
     echo "📸 Found images to copy:"
@@ -138,26 +155,37 @@ NOTE_CONTENT=$(cat "$NOTE_FILE")
 # GitHub Pages adds repo prefix automatically via IMAGE_PREFIX
 CONVERT_SCRIPT=$(mktemp)
 cat > "$CONVERT_SCRIPT" << 'PYEOF'
-import sys, re
+import sys, re, os
 
 content = sys.stdin.read()
 image_prefix = sys.argv[1] if len(sys.argv) > 1 else ''
 exts = r'\.(jpg|jpeg|png|gif|svg|webp)'
 
-def convert_img(m):
-    alt = m.group(1)
-    path = m.group(2)
-    # Skip URLs and already-absolute paths
-    if path.startswith('http://') or path.startswith('https://') or path.startswith('/'):
-        return m.group(0)
-    # Strip leading ./ or ../  (notes/ subfolder uses ../)
+def normalize_path(path):
     if path.startswith('../'):
         path = path[3:]
     elif path.startswith('./'):
         path = path[2:]
+    return path
+
+def convert_img(m):
+    alt = m.group(1)
+    path = m.group(2)
+    if path.startswith('http://') or path.startswith('https://') or path.startswith('/'):
+        return m.group(0)
+    path = normalize_path(path)
+    return f'![{alt}]({image_prefix}/{path})'
+
+def convert_wiki_img(m):
+    path = m.group(1)
+    if path.startswith('http://') or path.startswith('https://') or path.startswith('/'):
+        return m.group(0)
+    path = normalize_path(path)
+    alt = os.path.basename(path)
     return f'![{alt}]({image_prefix}/{path})'
 
 content = re.sub(r'!\[([^\]]*)\]\(([^)]+' + exts + r')\)', convert_img, content, flags=re.IGNORECASE)
+content = re.sub(r'!\[\[([^\]]+' + exts + r')\]\]', convert_wiki_img, content, flags=re.IGNORECASE)
 print(content, end='')
 PYEOF
 CONVERTED_CONTENT=$(echo "$NOTE_CONTENT" | python3 "$CONVERT_SCRIPT" "$IMAGE_PREFIX")
