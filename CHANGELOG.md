@@ -2,6 +2,10 @@
 
 All notable changes to kf-cli will be documented in this file.
 
+## [0.7.3] - 2026-07-02
+
+- Add 'Updating This Skill' section: use install.sh, never npx skills (keeps commands/templates)
+
 ## [0.7.2] - 2026-07-02
 
 - Quote SKILL.md description for strict-YAML so npx skills add/update works

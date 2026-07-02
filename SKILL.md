@@ -12,7 +12,7 @@ allowed-tools:
   - Task(*)
   - SlashCommand(*)
 metadata:
-  version: "0.7.2"
+  version: "0.7.3"
   repository: https://github.com/ZorCorp/kf-cli
   homepage: https://github.com/ZorCorp/kf-cli
 ---
@@ -28,6 +28,23 @@ AI-powered capture-to-publish pipeline for Obsidian. Turns any input into a perm
 - **Publish**: `/publish` pushes to GitHub Pages; `/share` generates a URL-encoded sharable link with no server storage
 
 This is the **CLI-native** version — uses `yt-dlp`, `gh` CLI, `curl`, and direct file operations instead of MCP/Docker.
+
+## Updating This Skill
+
+To upgrade kf-cli to the latest version, install the **full skill tree** from the source repo `ZorCorp/kf-cli`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ZorCorp/kf-cli/master/install.sh | bash -s -- --update
+```
+
+⚠️ **Do NOT install kf-cli via `npx skills` or any skill-curation that keeps only `SKILL.md`.** kf-cli
+requires its `commands/` and `templates/` directories to function — the `skills` CLI installs *only*
+`SKILL.md` and strips them, which silently breaks `/watch`, `/capture`, etc. If your runtime curates
+skills into a `SKILL.md`-only shape, copy the full installed tree (`~/.agents/skills/kf-cli/`, including
+`commands/` and `templates/`) into your skill slot instead of re-curating.
+
+**Verify after updating** — both must exist, or the install was stripped:
+`commands/watch.md` and `templates/watch-note-template.md`.
 
 ## Vault Configuration
 
