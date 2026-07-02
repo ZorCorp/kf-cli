@@ -2,6 +2,10 @@
 
 All notable changes to kf-cli will be documented in this file.
 
+## [0.7.2] - 2026-07-02
+
+- Quote SKILL.md description for strict-YAML so npx skills add/update works
+
 ## [0.7.1] - 2026-06-24
 
 ### Deprecated

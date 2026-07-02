@@ -1,6 +1,6 @@
 ---
 name: kf-cli
-description: AI-powered knowledge pipeline for Obsidian. Captures any input — any public/shareable video URL (YouTube, Vimeo, Loom, Zoom cloud recordings, Twitch, TikTok, and ~1800 other yt-dlp-supported sites), web articles, GitHub repos, ideas — into structured, auto-tagged notes using purpose-built templates. /watch auto-detects instructional vs meeting content and picks the matching template. Indexes captures into a wiki second brain that persists across sessions and context windows. Publishes notes to GitHub Pages and shares via URL. Commands: /capture (universal router), /watch (notes for any video URL), /study-guide, /idea, /publish, /share. CLI-native — no Docker or MCP required.
+description: "AI-powered knowledge pipeline for Obsidian. Captures any input — any public/shareable video URL (YouTube, Vimeo, Loom, Zoom cloud recordings, Twitch, TikTok, and ~1800 other yt-dlp-supported sites), web articles, GitHub repos, ideas — into structured, auto-tagged notes using purpose-built templates. /watch auto-detects instructional vs meeting content and picks the matching template. Indexes captures into a wiki second brain that persists across sessions and context windows. Publishes notes to GitHub Pages and shares via URL. Commands: /capture (universal router), /watch (notes for any video URL), /study-guide, /idea, /publish, /share. CLI-native — no Docker or MCP required."
 license: MIT
 allowed-tools:
   - Bash(*)
@@ -12,7 +12,7 @@ allowed-tools:
   - Task(*)
   - SlashCommand(*)
 metadata:
-  version: "0.7.1"
+  version: "0.7.2"
   repository: https://github.com/ZorCorp/kf-cli
   homepage: https://github.com/ZorCorp/kf-cli
 ---
