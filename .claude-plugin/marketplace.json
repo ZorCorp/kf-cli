@@ -5,7 +5,7 @@
     "email": "info@zorcorp.dev"
   },
   "metadata": {
-    "description": "KnowledgeFactory CLI - Native CLI tools, no Docker/MCP required",
+    "description": "KnowledgeFactory CLI — AI-powered capture-to-publish pipeline for Obsidian. Capture any public/shareable video URL (YouTube, Vimeo, Loom, Zoom recordings, Twitch, TikTok, and any yt-dlp-supported site), articles, repos, and ideas into structured notes. Auto-detects instructional vs meeting video, auto-tags, wiki-indexes, and publishes. No Docker or MCP required.",
     "version": "0.7.3",
     "repository": "https://github.com/ZorCorp/kf-cli",
     "license": "MIT",
@@ -22,7 +22,7 @@
   "plugins": [
     {
       "name": "kf-cli",
-      "description": "KnowledgeFactory CLI - Native implementation using CLI tools (yt-dlp, gh, curl) instead of MCP/Docker",
+      "description": "KnowledgeFactory CLI — AI-powered capture-to-publish pipeline for Obsidian. Capture any public/shareable video URL (YouTube, Vimeo, Loom, Zoom recordings, Twitch, TikTok, and any yt-dlp-supported site), articles, repos, and ideas into structured notes. Auto-detects instructional vs meeting video, auto-tags, wiki-indexes, and publishes. No Docker or MCP required.",
       "source": "./",
       "strict": false,
       "commands": [
