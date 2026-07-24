@@ -103,5 +103,41 @@ class TestMapview(unittest.TestCase):
         self.assertIn("L.polyline(", out)
 
 
+import subprocess  # noqa: E402
+import shutil      # noqa: E402
+import tempfile    # noqa: E402
+
+
+class TestTransformAndCli(unittest.TestCase):
+    def test_transform_replaces_and_warns(self):
+        md = open(os.path.join(FIX, "00-dash.md")).read()
+        new_md, warnings = qb.transform(md, FIX)
+        # parseable blocks replaced -> no dataview/mapview fences for them
+        self.assertNotIn("```mapview", new_md)
+        self.assertIn("L.polyline(", new_md)
+        self.assertIn("| 項目 | 日期 |", new_md.replace(" | 開始 | 結束 | 地點 |", " |"))
+        # unparseable "今日行程" dataview left untouched
+        self.assertIn("dateformat(date(today)", new_md)
+        # exactly one warning for the untouched block
+        self.assertEqual(len(warnings), 1)
+
+    def test_cli_writes_in_place(self):
+        tmp = tempfile.mkdtemp()
+        try:
+            dst = os.path.join(tmp, "00-dash.md")
+            shutil.copy(os.path.join(FIX, "00-dash.md"), dst)
+            script = os.path.join(HERE, "..", "scripts", "core", "quartz-bake.py")
+            r = subprocess.run(
+                [sys.executable, script, dst, FIX],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(r.returncode, 0)
+            baked = open(dst, encoding="utf-8").read()
+            self.assertIn("L.polyline(", baked)
+            self.assertIn("WARN", r.stderr)  # warning went to stderr
+        finally:
+            shutil.rmtree(tmp)
+
+
 if __name__ == "__main__":
     unittest.main()

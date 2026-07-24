@@ -247,3 +247,40 @@ def bake_mapview(cfg_json, folder):
             "\n  ".join(polylines),
         )
     )
+
+
+def transform(md, folder):
+    """Rewrite dataview/mapview blocks. Returns (new_md, warnings)."""
+    warnings = []
+    # Process right-to-left so earlier indices stay valid after replacement.
+    for start, end, lang, body in reversed(find_fenced_blocks(md)):
+        repl = None
+        if lang == "dataview":
+            repl = bake_dataview(body, folder)
+        elif lang == "mapview":
+            repl = bake_mapview(body.strip(), folder)
+        else:
+            continue
+        if repl is None:
+            warnings.append("unparseable %s block left untouched" % lang)
+            continue
+        md = md[:start] + repl + md[end:]
+    return md, warnings
+
+
+def main(argv):
+    if len(argv) != 3:
+        sys.stderr.write("usage: quartz-bake.py <baked_md> <vault_source_folder>\n")
+        return 2
+    baked_md, folder = argv[1], argv[2]
+    text = open(baked_md, encoding="utf-8").read()
+    new_text, warnings = transform(text, folder)
+    for w in warnings:
+        sys.stderr.write("WARN: %s\n" % w)
+    if new_text != text:
+        open(baked_md, "w", encoding="utf-8").write(new_text)
+    return 0  # best-effort: never fail the publish
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
