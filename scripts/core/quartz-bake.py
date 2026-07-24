@@ -256,6 +256,20 @@ def bake_mapview(cfg_json, folder):
     )
 
 
+def _placeholder(lang):
+    """Tidy stand-in for a block that can't be baked to static output.
+
+    A dynamic dataview/mapview block (functions, date math, `today`, etc.)
+    has no meaningful static rendering. Rather than dump raw query source on
+    the public page, leave a small collapsed callout pointing to Obsidian.
+    """
+    return (
+        "> [!note]- Dynamic view (Obsidian only)\n"
+        "> This `%s` block is computed live and renders only in Obsidian.\n"
+        % lang
+    )
+
+
 def transform(md, folder):
     """Rewrite dataview/mapview blocks. Returns (new_md, warnings)."""
     warnings = []
@@ -269,8 +283,8 @@ def transform(md, folder):
         else:
             continue
         if repl is None:
-            warnings.append("unparseable %s block left untouched" % lang)
-            continue
+            warnings.append("unparseable %s block replaced with placeholder" % lang)
+            repl = _placeholder(lang)
         md = md[:start] + repl + md[end:]
     return md, warnings
 

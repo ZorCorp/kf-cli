@@ -2,6 +2,14 @@
 
 All notable changes to kf-cli will be documented in this file.
 
+## [0.8.3] - 2026-07-24
+
+### Changed
+- quartz-bake: dataview/mapview blocks that can't be baked to static output
+  (functions, date math, `today`) now degrade to a small collapsed callout
+  ("Dynamic view (Obsidian only)") instead of dumping raw query source on the
+  published page.
+
 ## [0.8.2] - 2026-07-24
 
 ### Changed

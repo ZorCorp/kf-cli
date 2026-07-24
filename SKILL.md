@@ -12,7 +12,7 @@ allowed-tools:
   - Task(*)
   - SlashCommand(*)
 metadata:
-  version: "0.8.2"
+  version: "0.8.3"
   repository: https://github.com/ZorCorp/kf-cli
   homepage: https://github.com/ZorCorp/kf-cli
 ---
