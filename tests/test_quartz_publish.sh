@@ -46,6 +46,36 @@ else
 fi
 teardown
 
+# ── Test 3: html publish lands raw file + indexed stub with correct paths ──────
+setup
+cat > "$VAULT/notes/trip/deck.html" <<'HTML'
+<html><head><title>My CityU Deck</title></head><body><h1>slides</h1></body></html>
+HTML
+bash "$PUBLISH" "notes/trip/deck.html" "$VAULT" --yes >/dev/null 2>&1
+RAW="$GARDEN/content/notes/trip/deck.html"
+STUB="$GARDEN/content/notes/trip/deck-embed.md"
+if [[ -f "$RAW" ]] && diff -q "$VAULT/notes/trip/deck.html" "$RAW" >/dev/null; then
+    ok "raw html copied byte-identical, notes/ layer preserved"
+else
+    no "raw html missing or altered"
+fi
+if [[ -f "$STUB" ]] \
+   && grep -q 'tags: \[html-embed\]' "$STUB" \
+   && grep -q 'title: "My CityU Deck"' "$STUB" \
+   && grep -q '/notes/trip/deck' "$STUB" \
+   && grep -q '<iframe src="/notes/trip/deck"' "$STUB"; then
+    ok "indexed stub generated with title, tag, and extensionless iframe path"
+else
+    no "stub missing or malformed"; [[ -f "$STUB" ]] && sed 's/^/     /' "$STUB"
+fi
+# stub route must not collide with the html route
+if [[ ! -f "$GARDEN/content/notes/trip/deck.md" ]]; then
+    ok "stub does not claim the html's own route (no deck.md)"
+else
+    no "stub collided with html route (deck.md exists)"
+fi
+teardown
+
 echo ""
 echo "RESULT: $PASS passed, $FAIL failed"
 [[ $FAIL -eq 0 ]]

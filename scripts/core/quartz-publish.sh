@@ -127,15 +127,22 @@ for m in "${MD_FILES[@]}"; do
     python3 "$SCRIPT_DIR/quartz-bake.py" "$dest" "$(dirname "$m")" || echo "   ⚠️  bake skipped"
 done
 
-# ── HTML: copy raw file verbatim, preserving the notes/ layer ──────────────────
-# Served byte-identical at its extensionless Quartz URL. (No companion index stub
-# in 0.8.0 — raw .html is copied as-is; it renders on direct load.)
+# ── HTML: raw file verbatim (notes/ layer preserved) + indexed companion stub ──
+# The raw .html serves byte-identical at its extensionless URL but is absent from
+# Quartz's content index; the <base>-embed.md stub is what surfaces it on
+# Explorer/search (title + link + iframe to the extensionless URL).
 for h in "${HTML_FILES[@]}"; do
     relpath="$(rel "$h")"
     dest="$QUARTZ_REPO/content/$relpath"
     mkdir -p "$(dirname "$dest")"
     cp "$h" "$dest"
     echo "✅ html → content/$relpath (raw)"
+    base="$(basename "${relpath%.html}")"
+    site_path="/${relpath%.html}"                       # /notes/X/foo (extensionless)
+    stub_name=$(python3 "$SCRIPT_DIR/quartz-html-stub.py" "$h" "$site_path" "$base" --name)
+    stub="$QUARTZ_REPO/content/$(dirname "$relpath")/$stub_name"
+    python3 "$SCRIPT_DIR/quartz-html-stub.py" "$h" "$site_path" "$base" > "$stub"
+    echo "   ↳ indexed stub → content/$(dirname "$relpath")/$stub_name"
 done
 
 # ── Git add / commit / push origin v5 (handle non-fast-forward) ────────────────
