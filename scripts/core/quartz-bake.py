@@ -206,10 +206,13 @@ def bake_mapview(cfg_json, folder):
     lat = cfg.get("centerLat", 0)
     lng = cfg.get("centerLng", 0)
     zoom = cfg.get("mapZoom", 5)
-    # Deterministic div id: stable across republishes (unlike per-process hash()).
-    # NFC-normalize first so a CJK folder path hashes identically whether it
-    # arrives as NFD (macOS find/glob) or NFC (command-line arg).
-    _fid = unicodedata.normalize("NFC", folder)
+    # Deterministic div id derived from the map block's own config text (not the
+    # filesystem path). The same note read via a folder publish or a single-note
+    # publish yields byte-identical cfg_json, so the id — and thus the whole baked
+    # file — is stable across republishes and entry methods (no git churn). The
+    # absolute folder path, by contrast, can differ (NFC/NFD, find vs arg) between
+    # the two entry paths and would flip the id on every alternating publish.
+    _fid = unicodedata.normalize("NFC", cfg_json)
     mid = "kfmap-" + hashlib.md5(_fid.encode("utf-8")).hexdigest()[:8]
 
     markers = []
