@@ -74,5 +74,34 @@ class TestDataviewTask(unittest.TestCase):
         self.assertIn("- [ ] 帶相機", out)
 
 
+class TestMapview(unittest.TestCase):
+    CFG = '{"name":"x","mapZoom":6,"centerLat":48.3,"centerLng":119.9}'
+
+    def test_pins_use_location_latlng_unswapped(self):
+        out = qb.bake_mapview(self.CFG, FIX)
+        self.assertIsNotNone(out)
+        # location frontmatter is "lat,lng" -> Leaflet marker [lat, lng] as-is
+        self.assertIn("[49.205, 119.825]", out.replace(" ", " "))
+        self.assertIn("[49.48, 119.64]", out)
+        # 參考.md has no location -> no phantom pin; only 2 markers
+        self.assertEqual(out.count("L.marker("), 2)
+
+    def test_polyline_swaps_geojson_lnglat_to_latlng(self):
+        out = qb.bake_mapview(self.CFG, FIX)
+        # geojson coord [119.7614, 49.2115] (lng,lat) -> polyline [49.2115, 119.7614]
+        self.assertIn("[49.2115, 119.7614]", out)
+        self.assertIn("[50.2717, 120.1897]", out)
+        self.assertIn("L.polyline(", out)
+
+    def test_setview_from_center(self):
+        out = qb.bake_mapview(self.CFG, FIX)
+        self.assertIn("setView([48.3, 119.9], 6)", out)
+
+    def test_featurecollection_same_polyline_as_bare_feature(self):
+        out = qb.bake_mapview(self.CFG, FC)  # _fc/ holds only the FeatureCollection
+        self.assertIn("[49.2115, 119.7614]", out)
+        self.assertIn("L.polyline(", out)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -9,6 +9,7 @@ SOURCE FOLDER (arg 2), never from the copy destination.
 Usage: quartz-bake.py <baked_copy_md_path> <vault_source_folder>
 """
 import glob
+import hashlib
 import json
 import os
 import re
@@ -167,3 +168,82 @@ def _bake_task(q, folder):
         if items:
             groups.append("**[[%s]]**\n%s" % (stem, "\n".join(items)))
     return "\n\n".join(groups)
+
+
+def _parse_location(val):
+    """'lat,lng' string OR [lat,lng] array text -> (lat, lng) floats or None."""
+    if not val:
+        return None
+    nums = re.findall(r"-?\d+\.?\d*", val)
+    if len(nums) < 2:
+        return None
+    return float(nums[0]), float(nums[1])
+
+
+def _geojson_linestrings(folder):
+    """Yield coordinate lists (each [[lng,lat],...]) from every geojson in folder.
+
+    Handles a bare Feature AND a FeatureCollection.
+    """
+    for p in sorted(glob.glob(os.path.join(folder, "*.geojson"))):
+        try:
+            gj = json.load(open(p, encoding="utf-8"))
+        except Exception:
+            continue
+        feats = gj.get("features", [gj] if gj.get("type") == "Feature" else [])
+        for f in feats:
+            geom = f.get("geometry", {}) if isinstance(f, dict) else {}
+            if geom.get("type") == "LineString":
+                yield geom.get("coordinates", [])
+
+
+def bake_mapview(cfg_json, folder):
+    try:
+        cfg = json.loads(cfg_json)
+    except Exception:
+        return None
+    lat = cfg.get("centerLat", 0)
+    lng = cfg.get("centerLng", 0)
+    zoom = cfg.get("mapZoom", 5)
+    # Deterministic div id: stable across republishes (unlike per-process hash()).
+    mid = "kfmap-" + hashlib.md5(folder.encode("utf-8")).hexdigest()[:8]
+
+    markers = []
+    for stem, fm, _ in _sibling_notes(folder):
+        loc = _parse_location(fm.get("location", ""))
+        if not loc:
+            continue
+        title = fm.get("title", stem)
+        # popup links to the note's Quartz page (relative extensionless)
+        popup = '<a href="%s">%s</a>' % (stem, title)
+        markers.append(
+            'L.marker([%s, %s]).addTo(m).bindPopup(%s);'
+            % (loc[0], loc[1], json.dumps(popup))
+        )
+
+    polylines = []
+    for coords in _geojson_linestrings(folder):
+        swapped = [[c[1], c[0]] for c in coords if len(c) >= 2]  # [lng,lat]->[lat,lng]
+        if swapped:
+            polylines.append(
+                'L.polyline(%s, {color:"#284b63"}).addTo(m);' % json.dumps(swapped)
+            )
+
+    return (
+        '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>\n'
+        '<div id="%s" style="height:400px;margin:1rem 0;"></div>\n'
+        '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>\n'
+        '<script>\n'
+        '(function(){\n'
+        '  var m = L.map("%s").setView([%s, %s], %s);\n'
+        '  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",'
+        '{attribution:"© OpenStreetMap"}).addTo(m);\n'
+        '  %s\n'
+        '  %s\n'
+        '})();\n'
+        '</script>' % (
+            mid, mid, lat, lng, zoom,
+            "\n  ".join(markers),
+            "\n  ".join(polylines),
+        )
+    )
