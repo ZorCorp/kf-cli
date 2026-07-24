@@ -76,6 +76,31 @@ else
 fi
 teardown
 
+# ── Test 4: --dry-run lists md + html + stub, changes nothing, exits 0 ─────────
+setup
+printf -- '---\ntitle: hi\n---\n# hi\n' > "$VAULT/notes/trip/hello.md"
+cat > "$VAULT/notes/trip/deck.html" <<'HTML'
+<html><head><title>Deck</title></head><body>x</body></html>
+HTML
+OUT=$(bash "$PUBLISH" "notes/trip/" "$VAULT" --dry-run 2>&1); RC=$?
+if [[ $RC -eq 0 ]] \
+   && echo "$OUT" | grep -q 'md   → content/notes/trip/hello.md' \
+   && echo "$OUT" | grep -q 'html → content/notes/trip/deck.html' \
+   && echo "$OUT" | grep -q 'stub → content/notes/trip/deck-embed.md' \
+   && echo "$OUT" | grep -q 'DRY_RUN=yes'; then
+    ok "--dry-run lists md + html + generated stub"
+else
+    no "--dry-run output incomplete (rc=$RC)"; echo "$OUT" | sed 's/^/     /'
+fi
+# dry-run must NOT copy anything or add a commit
+COMMITS=$(git -C "$GARDEN" rev-list --count HEAD)
+if [[ -z "$(ls -A "$GARDEN/content")" ]] && [[ "$COMMITS" == "1" ]]; then
+    ok "--dry-run made no changes (garden content empty, no new commit)"
+else
+    no "--dry-run mutated the garden (content or commits changed)"
+fi
+teardown
+
 echo ""
 echo "RESULT: $PASS passed, $FAIL failed"
 [[ $FAIL -eq 0 ]]

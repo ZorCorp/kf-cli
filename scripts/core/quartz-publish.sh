@@ -1,15 +1,28 @@
 #!/bin/bash
 # Publish Obsidian note(s) to a Quartz v5 digital garden.
 # Preserves the notes/ layer (unlike publish.sh's flat documents/).
-# Usage: quartz-publish.sh <note.md | folder/ | file.html> [VAULT_PATH] [--yes]
+# Usage: quartz-publish.sh <note.md | folder/ | file.html> [VAULT_PATH] [--yes] [--dry-run|--list]
+#   --yes            skip the interactive read -p confirm (used by the command-file
+#                    layer, which runs its OWN pre-publish confirm first).
+#   --dry-run|--list resolve + print EXACTLY what WOULD publish (md + html + stubs),
+#                    make NO changes, exit 0. This feeds the command-file confirm gate.
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-INPUT="$1"
-VAULT_PATH="${2:-$(pwd)}"
+INPUT="$1"; shift || true
+
+# Flags may appear in any order after INPUT; the first non-flag arg is VAULT_PATH.
+VAULT_PATH=""
 ASSUME_YES="no"
-[[ "$2" == "--yes" ]] && { VAULT_PATH="$(pwd)"; ASSUME_YES="yes"; }
-[[ "$3" == "--yes" ]] && ASSUME_YES="yes"
+DRY_RUN="no"
+for arg in "$@"; do
+    case "$arg" in
+        --yes)            ASSUME_YES="yes" ;;
+        --dry-run|--list) DRY_RUN="yes" ;;
+        *)                [[ -z "$VAULT_PATH" ]] && VAULT_PATH="$arg" ;;
+    esac
+done
+VAULT_PATH="${VAULT_PATH:-$(pwd)}"
 
 # ── Config ────────────────────────────────────────────────────────────────────
 CONFIG_FILE="$VAULT_PATH/.claude/config.local.json"
@@ -80,8 +93,21 @@ fi
 rel() { echo "${1#$VAULT_PATH/}"; }
 echo "📋 Will publish to the PUBLIC garden ($QUARTZ_URL):"
 for m in "${MD_FILES[@]}";   do echo "   md   → content/$(rel "$m")"; done
-for h in "${HTML_FILES[@]}"; do echo "   html → content/$(rel "$h") (raw)"; done
+for h in "${HTML_FILES[@]}"; do
+    hrel="$(rel "$h")"
+    hbase="$(basename "${hrel%.html}")"
+    hstub=$(python3 "$SCRIPT_DIR/quartz-html-stub.py" "$h" "/${hrel%.html}" "$hbase" --name 2>/dev/null)
+    echo "   html → content/$hrel (raw)"
+    echo "   stub → content/$(dirname "$hrel")/$hstub (indexed embed)"
+done
 echo ""
+
+# --dry-run / --list: report only, change nothing, exit before any copy/push.
+if [[ "$DRY_RUN" == "yes" ]]; then
+    echo "DRY_RUN=yes — no files copied, nothing pushed."
+    exit 0
+fi
+
 if [[ "$ASSUME_YES" != "yes" ]]; then
     read -r -p "Publish these ${#MD_FILES[@]} note(s) + ${#HTML_FILES[@]} html file(s)? [y/N] " ans
     [[ "$ans" =~ ^[Yy] ]] || { echo "Aborted."; exit 0; }
