@@ -14,6 +14,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 
 
 def parse_frontmatter(text):
@@ -206,7 +207,10 @@ def bake_mapview(cfg_json, folder):
     lng = cfg.get("centerLng", 0)
     zoom = cfg.get("mapZoom", 5)
     # Deterministic div id: stable across republishes (unlike per-process hash()).
-    mid = "kfmap-" + hashlib.md5(folder.encode("utf-8")).hexdigest()[:8]
+    # NFC-normalize first so a CJK folder path hashes identically whether it
+    # arrives as NFD (macOS find/glob) or NFC (command-line arg).
+    _fid = unicodedata.normalize("NFC", folder)
+    mid = "kfmap-" + hashlib.md5(_fid.encode("utf-8")).hexdigest()[:8]
 
     markers = []
     for stem, fm, _ in _sibling_notes(folder):
