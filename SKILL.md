@@ -1,6 +1,6 @@
 ---
 name: kf-cli
-description: "AI-powered knowledge pipeline for Obsidian. Captures any input — any public/shareable video URL (YouTube, Vimeo, Loom, Zoom cloud recordings, Twitch, TikTok, and ~1800 other yt-dlp-supported sites), web articles, GitHub repos, ideas — into structured, auto-tagged notes using purpose-built templates. /watch auto-detects instructional vs meeting content and picks the matching template. Indexes captures into a wiki second brain that persists across sessions and context windows. Publishes notes to GitHub Pages and shares via URL. Commands: /capture (universal router), /watch (notes for any video URL), /study-guide, /idea, /publish, /share. CLI-native — no Docker or MCP required."
+description: "AI-powered knowledge pipeline for Obsidian. Captures any input — any public/shareable video URL (YouTube, Vimeo, Loom, Zoom cloud recordings, Twitch, TikTok, and ~1800 other yt-dlp-supported sites), web articles, GitHub repos, ideas — into structured, auto-tagged notes using purpose-built templates. /watch auto-detects instructional vs meeting content and picks the matching template. Indexes captures into a wiki second brain that persists across sessions and context windows. Publishes notes to GitHub Pages and shares via URL. Commands: /capture (universal router), /watch (notes for any video URL), /study-guide, /idea, /publish, /quartz (publish a note or folder to a Quartz digital garden), /share. CLI-native — no Docker or MCP required."
 license: MIT
 allowed-tools:
   - Bash(*)
@@ -25,7 +25,7 @@ AI-powered capture-to-publish pipeline for Obsidian. Turns any input into a perm
 - **Capture**: `/capture` routes any input to the right handler — video URLs (YouTube, Loom, Vimeo, any yt-dlp-supported platform) → `/watch`, GitHub → `/gitingest`, articles → `/article` or `/study-guide`, plain text → `/idea`
 - **Auto-tag**: Every note gets structured tags from a fixed taxonomy for Bases filtering
 - **Wiki index**: Notes are automatically indexed into `wiki/[topic]/[topic].md` so the vault compounds over time
-- **Publish**: `/publish` pushes to GitHub Pages; `/share` generates a URL-encoded sharable link with no server storage
+- **Publish**: `/publish` pushes to GitHub Pages; `/quartz` publishes a note or whole folder to a Quartz digital garden (`dataview`/`mapview` blocks baked to static rendering); `/share` generates a URL-encoded sharable link with no server storage
 
 This is the **CLI-native** version — uses `yt-dlp`, `gh` CLI, `curl`, and direct file operations instead of MCP/Docker.
 
@@ -343,6 +343,7 @@ frames when available, transcript otherwise.
 | Web content | `WebFetch` tool |
 | GitHub API | `gh api /repos/{owner}/{repo}/...` |
 | Publishing | `scripts/core/publish.sh` |
+| Quartz garden publishing | `scripts/core/quartz-publish.sh` (+ `quartz-bake.py`, `quartz-verify.sh`) |
 | Search | `curl` to Local REST API |
 | Share URLs | Python zlib + base64 |
 

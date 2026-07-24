@@ -189,6 +189,7 @@ This is **optional** and **Obsidian-specific**. Skip it if you don't use Obsidia
 | `/kf-cli:study-guide <source>` | Comprehensive study guide |
 | `/kf-cli:article <topic>` | Article with auto-generated hero image |
 | `/kf-cli:publish <file>` | Publish note to GitHub Pages |
+| `/kf-cli:quartz <note\|folder>` | Publish a note or folder to a Quartz digital garden (dataview/mapview baked to static) |
 | `/kf-cli:share <file>` | Generate shareable URL (no server) |
 | `/kf-cli:semantic-search <query>` | Ripgrep + optional rerank over the vault |
 | `/kf-cli:bulk-auto-tag` | AI-tag all untagged notes |

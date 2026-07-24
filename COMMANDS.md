@@ -16,6 +16,7 @@ All commands use the `/kf-cli:` prefix. Short commands (e.g., `/capture`) can be
 | `study-guide` | Comprehensive study guide | URL, file path, or text |
 | `article` | Article with auto-generated hero image | Topic or content |
 | `publish` | Publish note to GitHub Pages | Filename |
+| `quartz` | Publish note or folder to a Quartz digital garden (dataview/mapview baked to static) | Note, folder, or `.html` |
 | `share` | Share note via URL-encoded link | Filename |
 | `bulk-auto-tag` | Bulk tag existing notes | Folder path or file pattern |
 | `semantic-search` | Search vault via Local REST API | Search query |
@@ -252,7 +253,42 @@ Publishes a note to GitHub Pages via the sharehub repository with image path con
 
 ---
 
-### 8. `/kf-cli:share`
+### 8. `/kf-cli:quartz`
+
+Publishes a single note, a whole folder, or a raw HTML file to a Quartz v5 digital garden (configured by `/kf-cli:setup` as `quartz_repo` / `quartz_url`). The garden is PUBLIC — the command prints exactly what will be published and refuses any note marked `access: private`.
+
+**Syntax**
+
+```
+/kf-cli:quartz <note.md | folder/ | file.html>
+```
+
+**CLI Tools Used**: `quartz-publish.sh` (bundled), `quartz-bake.py`, `quartz-verify.sh`, `git`, spawned via Task subagent.
+
+**Process**
+
+1. Reads `quartz_repo` / `quartz_url` from `$VAULT/.claude/config.local.json`
+2. Copies note(s) into `<quartz_repo>/content/notes/…`, preserving the `notes/<folder>/` layer
+3. Bakes `dataview` (TABLE/TASK) and `mapview` blocks to static markdown/Leaflet on the copy (the vault original is never modified; unparseable blocks are left untouched)
+4. Copies referenced images; copies any raw `.html` byte-identical
+5. Commits and pushes to the garden's `v5` branch — GitHub Actions builds (no local `quartz build`)
+6. Poll-verifies the published extensionless URL (HTTP 200)
+
+**Notes**: Mermaid is left to Quartz's native renderer. Baked Leaflet maps load on direct page load / refresh; with Quartz's `enableSPA`, a map may need a refresh after in-site navigation.
+
+**Examples**
+
+```
+/kf-cli:quartz notes/內蒙古之旅/00-行程總覽.md
+/kf-cli:quartz 內蒙古之旅/
+/kf-cli:quartz notes/2026-06-15-deck.html
+```
+
+**Output**: Published URL at `<quartz_url>/notes/{folder}/{name}` (extensionless). Reports `VERIFIED_URL` (HTTP 200) or `UNVERIFIED_URL` (pushed, Actions still building).
+
+---
+
+### 9. `/kf-cli:share`
 
 Generates a shareable URL containing the full note content encoded in the URL fragment (no server storage required).
 
@@ -283,7 +319,7 @@ Generates a shareable URL containing the full note content encoded in the URL fr
 
 ---
 
-### 9. `/kf-cli:bulk-auto-tag`
+### 10. `/kf-cli:bulk-auto-tag`
 
 Scans existing notes and applies AI-powered tags from the taxonomy to enable Obsidian Bases filtering.
 
@@ -325,7 +361,7 @@ Defaults to all `.md` files in the vault (excluding `.obsidian/` and `.claude/`)
 
 ---
 
-### 10. `/kf-cli:semantic-search`
+### 11. `/kf-cli:semantic-search`
 
 Searches the Obsidian vault using the Local REST API plugin.
 
@@ -363,7 +399,7 @@ Searches the Obsidian vault using the Local REST API plugin.
 
 ---
 
-### 11. `/kf-cli:setup`
+### 12. `/kf-cli:setup`
 
 Interactive setup wizard that verifies dependencies, checks Obsidian plugins, discovers the sharehub repo, and creates vault configuration.
 

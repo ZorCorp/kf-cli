@@ -71,3 +71,4 @@ Apply these when tagging new captures. Add your own as needed.
 - **Compile** raw material → process files in `raw/`, synthesize into `wiki/`, cross-link
 - **Audit** → review `wiki/` for broken links, inconsistencies, gaps; propose fixes
 - **Answer questions** → read `wiki/_master-index.md` first, drill into the relevant topic, then specific articles
+- **Publish** → `/kf-cli:publish <note>` to GitHub Pages, or `/kf-cli:quartz <note|folder>` to a Quartz digital garden (dataview/mapview baked to static)
