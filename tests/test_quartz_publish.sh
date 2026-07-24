@@ -52,27 +52,29 @@ cat > "$VAULT/notes/trip/deck.html" <<'HTML'
 <html><head><title>My CityU Deck</title></head><body><h1>slides</h1></body></html>
 HTML
 bash "$PUBLISH" "notes/trip/deck.html" "$VAULT" --yes >/dev/null 2>&1
-RAW="$GARDEN/content/notes/trip/deck.html"
+# raw html now lands in the garden STATIC dir (served as text/html), NOT content/
+RAW="$GARDEN/quartz/static/embeds/notes/trip/deck.html"
 STUB="$GARDEN/content/notes/trip/deck-embed.md"
 if [[ -f "$RAW" ]] && diff -q "$VAULT/notes/trip/deck.html" "$RAW" >/dev/null; then
-    ok "raw html copied byte-identical, notes/ layer preserved"
+    ok "raw html copied byte-identical into quartz/static/embeds (notes/ layer preserved)"
 else
-    no "raw html missing or altered"
+    no "raw html missing or altered in static dir"
 fi
 if [[ -f "$STUB" ]] \
    && grep -q 'tags: \[html-embed\]' "$STUB" \
    && grep -q 'title: "My CityU Deck"' "$STUB" \
-   && grep -q '/notes/trip/deck' "$STUB" \
-   && grep -q '<iframe src="/notes/trip/deck"' "$STUB"; then
-    ok "indexed stub generated with title, tag, and extensionless iframe path"
+   && grep -q '(/static/embeds/notes/trip/deck.html)' "$STUB" \
+   && grep -q '<iframe src="/static/embeds/notes/trip/deck.html"' "$STUB"; then
+    ok "indexed stub generated with title, tag, and /static/ iframe+link path"
 else
     no "stub missing or malformed"; [[ -f "$STUB" ]] && sed 's/^/     /' "$STUB"
 fi
-# stub route must not collide with the html route
-if [[ ! -f "$GARDEN/content/notes/trip/deck.md" ]]; then
-    ok "stub does not claim the html's own route (no deck.md)"
+# raw html must NOT be in content/ (that route serves octet-stream) and the stub
+# must not claim a bare deck.md route
+if [[ ! -f "$GARDEN/content/notes/trip/deck.html" ]] && [[ ! -f "$GARDEN/content/notes/trip/deck.md" ]]; then
+    ok "no content-side html/deck.md (raw html served only from /static/)"
 else
-    no "stub collided with html route (deck.md exists)"
+    no "unexpected content-side deck.html or deck.md"
 fi
 teardown
 
@@ -85,19 +87,19 @@ HTML
 OUT=$(bash "$PUBLISH" "notes/trip/" "$VAULT" --dry-run 2>&1); RC=$?
 if [[ $RC -eq 0 ]] \
    && echo "$OUT" | grep -q 'md   → content/notes/trip/hello.md' \
-   && echo "$OUT" | grep -q 'html → content/notes/trip/deck.html' \
+   && echo "$OUT" | grep -q 'html → quartz/static/embeds/notes/trip/deck.html' \
    && echo "$OUT" | grep -q 'stub → content/notes/trip/deck-embed.md' \
    && echo "$OUT" | grep -q 'DRY_RUN=yes'; then
-    ok "--dry-run lists md + html + generated stub"
+    ok "--dry-run lists md + static html + generated stub"
 else
     no "--dry-run output incomplete (rc=$RC)"; echo "$OUT" | sed 's/^/     /'
 fi
-# dry-run must NOT copy anything or add a commit
+# dry-run must NOT copy anything (content + static) or add a commit
 COMMITS=$(git -C "$GARDEN" rev-list --count HEAD)
-if [[ -z "$(ls -A "$GARDEN/content")" ]] && [[ "$COMMITS" == "1" ]]; then
-    ok "--dry-run made no changes (garden content empty, no new commit)"
+if [[ -z "$(ls -A "$GARDEN/content")" ]] && [[ ! -d "$GARDEN/quartz/static/embeds" ]] && [[ "$COMMITS" == "1" ]]; then
+    ok "--dry-run made no changes (no content, no static embeds, no new commit)"
 else
-    no "--dry-run mutated the garden (content or commits changed)"
+    no "--dry-run mutated the garden (content/static/commits changed)"
 fi
 teardown
 

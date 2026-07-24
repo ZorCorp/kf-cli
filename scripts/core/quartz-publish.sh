@@ -96,9 +96,9 @@ for m in "${MD_FILES[@]}";   do echo "   md   → content/$(rel "$m")"; done
 for h in "${HTML_FILES[@]}"; do
     hrel="$(rel "$h")"
     hbase="$(basename "${hrel%.html}")"
-    hstub=$(python3 "$SCRIPT_DIR/quartz-html-stub.py" "$h" "/${hrel%.html}" "$hbase" --name 2>/dev/null)
-    echo "   html → content/$hrel (raw)"
-    echo "   stub → content/$(dirname "$hrel")/$hstub (indexed embed)"
+    hstub=$(python3 "$SCRIPT_DIR/quartz-html-stub.py" "$h" "/static/embeds/$hrel" "$hbase" --name 2>/dev/null)
+    echo "   html → quartz/static/embeds/$hrel (served text/html at /static/embeds/$hrel)"
+    echo "   stub → content/$(dirname "$hrel")/$hstub (indexed embed → /static/embeds/$hrel)"
 done
 echo ""
 
@@ -153,22 +153,28 @@ for m in "${MD_FILES[@]}"; do
     python3 "$SCRIPT_DIR/quartz-bake.py" "$dest" "$(dirname "$m")" || echo "   ⚠️  bake skipped"
 done
 
-# ── HTML: raw file verbatim (notes/ layer preserved) + indexed companion stub ──
-# The raw .html serves byte-identical at its extensionless URL but is absent from
-# Quartz's content index; the <base>-embed.md stub is what surfaces it on
-# Explorer/search (title + link + iframe to the extensionless URL).
+# ── HTML: raw file → garden static dir (served as text/html) + indexed stub ─────
+# Quartz strips the extension off a content/*.html and GitHub Pages then serves it
+# as application/octet-stream (downloads, no inline render). Files under
+# quartz/static/ are copied to the build VERBATIM (extension kept) and served at
+# /static/… with the correct content-type by extension, so the deck renders. The
+# indexed <base>-embed.md stub stays under content/ (that is what makes the deck
+# appear in Explorer/search); its link + iframe point at the /static/embeds/… URL.
+QUARTZ_STATIC_SUBDIR="embeds"   # under quartz/static/ ; served at /static/embeds/…
 for h in "${HTML_FILES[@]}"; do
-    relpath="$(rel "$h")"
-    dest="$QUARTZ_REPO/content/$relpath"
-    mkdir -p "$(dirname "$dest")"
-    cp "$h" "$dest"
-    echo "✅ html → content/$relpath (raw)"
+    relpath="$(rel "$h")"                               # notes/X/foo.html
+    static_rel="$QUARTZ_STATIC_SUBDIR/$relpath"         # embeds/notes/X/foo.html
+    static_dest="$QUARTZ_REPO/quartz/static/$static_rel"
+    mkdir -p "$(dirname "$static_dest")"
+    cp "$h" "$static_dest"
+    echo "✅ html → quartz/static/$static_rel (served text/html at /static/$static_rel)"
     base="$(basename "${relpath%.html}")"
-    site_path="/${relpath%.html}"                       # /notes/X/foo (extensionless)
-    stub_name=$(python3 "$SCRIPT_DIR/quartz-html-stub.py" "$h" "$site_path" "$base" --name)
+    static_url="/static/$static_rel"                    # /static/embeds/notes/X/foo.html
+    stub_name=$(python3 "$SCRIPT_DIR/quartz-html-stub.py" "$h" "$static_url" "$base" --name)
     stub="$QUARTZ_REPO/content/$(dirname "$relpath")/$stub_name"
-    python3 "$SCRIPT_DIR/quartz-html-stub.py" "$h" "$site_path" "$base" > "$stub"
-    echo "   ↳ indexed stub → content/$(dirname "$relpath")/$stub_name"
+    mkdir -p "$(dirname "$stub")"
+    python3 "$SCRIPT_DIR/quartz-html-stub.py" "$h" "$static_url" "$base" > "$stub"
+    echo "   ↳ indexed stub → content/$(dirname "$relpath")/$stub_name (embeds $static_url)"
 done
 
 # ── Git add / commit / push origin v5 (handle non-fast-forward) ────────────────
@@ -184,12 +190,16 @@ echo "🚀 Pushing to origin v5..."
 git pull --rebase origin v5 >/dev/null 2>&1 || true
 git push origin v5
 
-# ── Verify first markdown (or first html stub) URL ─────────────────────────────
+# ── Verify first markdown page (or, for html-only, the first stub page) URL ─────
+# For html the raw file now lives under /static/ (not a content route); the
+# indexed <base>-embed stub IS a content page, so verifying it proves the build ran.
 if (( ${#MD_FILES[@]} > 0 )); then
     first_rel="$(rel "${MD_FILES[0]}")"           # notes/X/Y.md
-    url_path="${first_rel#content/}"; url_path="${first_rel%.md}"
+    url_path="${first_rel%.md}"
 else
-    first_rel="$(rel "${HTML_FILES[0]}")"; url_path="${first_rel%.html}"
+    first_rel="$(rel "${HTML_FILES[0]}")"         # notes/X/foo.html
+    hbase="$(basename "${first_rel%.html}")"
+    url_path="$(dirname "$first_rel")/${hbase}-embed"   # notes/X/foo-embed (stub route)
 fi
 echo ""
 bash "$SCRIPT_DIR/quartz-verify.sh" "$url_path" "$VAULT_PATH"

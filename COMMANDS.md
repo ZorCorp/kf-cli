@@ -271,11 +271,11 @@ Publishes a single note, a whole folder, or a raw HTML file to a Quartz v5 digit
 2. **Pre-publish confirm gate**: runs a `--dry-run` and shows you the exact file list (md + html + generated stubs); the garden is PUBLIC, so nothing is pushed until you confirm
 3. Copies note(s) into `<quartz_repo>/content/notes/…`, preserving the `notes/<folder>/` layer
 4. Bakes `dataview` (TABLE/TASK) and `mapview` blocks to static markdown/Leaflet on the copy (the vault original is never modified; unparseable blocks are left untouched)
-5. Copies referenced images; copies any raw `.html` byte-identical **and** generates an indexed `<base>-embed.md` companion stub (title + `html-embed` tag + link + iframe) so the html shows up in Explorer/search
+5. Copies referenced images; copies any raw `.html` byte-identical into `quartz/static/embeds/…` (served as `text/html`, so the deck renders) **and** generates an indexed `<base>-embed.md` companion stub under `content/` (title + `html-embed` tag + link + iframe → the static URL) so the html shows up in Explorer/search
 6. Commits and pushes to the garden's `v5` branch — GitHub Actions builds (no local `quartz build`)
 7. Poll-verifies the published extensionless URL (HTTP 200)
 
-**Notes**: Mermaid is left to Quartz's native renderer. Baked Leaflet maps load on direct page load / refresh; with Quartz's `enableSPA`, a map may need a refresh after in-site navigation. HTML index visibility (title/tag/link) always works; the stub's inline `<iframe>` preview renders only where the host serves raw html as `text/html` (on GitHub Pages the extensionless file is `application/octet-stream`, so it downloads rather than previews).
+**Notes**: Mermaid is left to Quartz's native renderer. Baked Leaflet maps load on direct page load / refresh; with Quartz's `enableSPA`, a map may need a refresh after in-site navigation. Raw `.html` is served from `quartz/static/embeds/…` as `text/html`, so it renders both directly and inside the stub's iframe; the `<base>-embed.md` stub is what makes it findable in Explorer/search.
 
 **Examples**
 

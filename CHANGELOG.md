@@ -5,24 +5,22 @@ All notable changes to kf-cli will be documented in this file.
 ## [0.8.1] - 2026-07-24
 
 ### Added
-- `/kf-cli:quartz` first-class `.html` publishing: the raw file is copied
-  byte-identical AND an indexed companion stub `<base>-embed.md` is generated
-  (title from the HTML `<title>`, `tags: [html-embed]`, a link, and an `<iframe>`)
-  so the deck appears in Explorer/search — a raw `.html` alone is absent from
-  Quartz's content index. The `-embed` suffix keeps the stub's route from
-  colliding with the html's own route.
+- `/kf-cli:quartz` first-class `.html` publishing that actually RENDERS. The raw
+  file is copied byte-identical into the garden's `quartz/static/embeds/…` tree,
+  which Quartz copies to the build verbatim (extension kept) and GitHub Pages
+  serves at `/static/embeds/…` as `text/html` — so the deck renders in the
+  browser and inside an iframe. (A raw `.html` placed under `content/` is instead
+  emitted extensionless and served as `application/octet-stream`, which downloads
+  rather than rendering — hence the static route.) An indexed companion stub
+  `<base>-embed.md` stays under `content/` (title from the HTML `<title>`,
+  `tags: [html-embed]`, a link + an `<iframe>` pointing at the static URL) so the
+  deck shows up in Explorer/search. The `-embed` suffix keeps the stub's route
+  collision-safe.
 - Pre-publish confirm gate: `quartz-publish.sh` gained a `--dry-run`/`--list`
-  mode that prints exactly what would publish (md + html + stubs) and changes
-  nothing. `/kf-cli:quartz` now runs the dry-run, shows the file list, and asks
-  the user to confirm before pushing anything to the PUBLIC garden.
+  mode that prints exactly what would publish (md + static html + stubs) and
+  changes nothing. `/kf-cli:quartz` now runs the dry-run, shows the file list,
+  and asks the user to confirm before pushing anything to the PUBLIC garden.
 - `scripts/core/quartz-html-stub.py` + `tests/test_quartz_html_stub.py`.
-
-### Notes
-- On GitHub Pages, Quartz serves the extensionless raw html as
-  `application/octet-stream`, so the stub's `<iframe>` preview does not render
-  inline there (the deck downloads); the stub's index visibility, title, tag,
-  and link still work. Inline preview works on hosts that serve the raw html as
-  `text/html`.
 
 ## [0.8.0] - 2026-07-24
 
