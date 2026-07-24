@@ -263,18 +263,19 @@ Publishes a single note, a whole folder, or a raw HTML file to a Quartz v5 digit
 /kf-cli:quartz <note.md | folder/ | file.html>
 ```
 
-**CLI Tools Used**: `quartz-publish.sh` (bundled), `quartz-bake.py`, `quartz-verify.sh`, `git`, spawned via Task subagent.
+**CLI Tools Used**: `quartz-publish.sh` (bundled), `quartz-bake.py`, `quartz-html-stub.py`, `quartz-verify.sh`, `git`, spawned via Task subagent.
 
 **Process**
 
 1. Reads `quartz_repo` / `quartz_url` from `$VAULT/.claude/config.local.json`
-2. Copies note(s) into `<quartz_repo>/content/notes/…`, preserving the `notes/<folder>/` layer
-3. Bakes `dataview` (TABLE/TASK) and `mapview` blocks to static markdown/Leaflet on the copy (the vault original is never modified; unparseable blocks are left untouched)
-4. Copies referenced images; copies any raw `.html` byte-identical
-5. Commits and pushes to the garden's `v5` branch — GitHub Actions builds (no local `quartz build`)
-6. Poll-verifies the published extensionless URL (HTTP 200)
+2. **Pre-publish confirm gate**: runs a `--dry-run` and shows you the exact file list (md + html + generated stubs); the garden is PUBLIC, so nothing is pushed until you confirm
+3. Copies note(s) into `<quartz_repo>/content/notes/…`, preserving the `notes/<folder>/` layer
+4. Bakes `dataview` (TABLE/TASK) and `mapview` blocks to static markdown/Leaflet on the copy (the vault original is never modified; unparseable blocks are left untouched)
+5. Copies referenced images; copies any raw `.html` byte-identical **and** generates an indexed `<base>-embed.md` companion stub (title + `html-embed` tag + link + iframe) so the html shows up in Explorer/search
+6. Commits and pushes to the garden's `v5` branch — GitHub Actions builds (no local `quartz build`)
+7. Poll-verifies the published extensionless URL (HTTP 200)
 
-**Notes**: Mermaid is left to Quartz's native renderer. Baked Leaflet maps load on direct page load / refresh; with Quartz's `enableSPA`, a map may need a refresh after in-site navigation.
+**Notes**: Mermaid is left to Quartz's native renderer. Baked Leaflet maps load on direct page load / refresh; with Quartz's `enableSPA`, a map may need a refresh after in-site navigation. HTML index visibility (title/tag/link) always works; the stub's inline `<iframe>` preview renders only where the host serves raw html as `text/html` (on GitHub Pages the extensionless file is `application/octet-stream`, so it downloads rather than previews).
 
 **Examples**
 

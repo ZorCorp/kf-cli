@@ -2,6 +2,28 @@
 
 All notable changes to kf-cli will be documented in this file.
 
+## [0.8.1] - 2026-07-24
+
+### Added
+- `/kf-cli:quartz` first-class `.html` publishing: the raw file is copied
+  byte-identical AND an indexed companion stub `<base>-embed.md` is generated
+  (title from the HTML `<title>`, `tags: [html-embed]`, a link, and an `<iframe>`)
+  so the deck appears in Explorer/search — a raw `.html` alone is absent from
+  Quartz's content index. The `-embed` suffix keeps the stub's route from
+  colliding with the html's own route.
+- Pre-publish confirm gate: `quartz-publish.sh` gained a `--dry-run`/`--list`
+  mode that prints exactly what would publish (md + html + stubs) and changes
+  nothing. `/kf-cli:quartz` now runs the dry-run, shows the file list, and asks
+  the user to confirm before pushing anything to the PUBLIC garden.
+- `scripts/core/quartz-html-stub.py` + `tests/test_quartz_html_stub.py`.
+
+### Notes
+- On GitHub Pages, Quartz serves the extensionless raw html as
+  `application/octet-stream`, so the stub's `<iframe>` preview does not render
+  inline there (the deck downloads); the stub's index visibility, title, tag,
+  and link still work. Inline preview works on hosts that serve the raw html as
+  `text/html`.
+
 ## [0.8.0] - 2026-07-24
 
 ### Added

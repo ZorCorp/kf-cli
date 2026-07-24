@@ -12,7 +12,7 @@ allowed-tools:
   - Task(*)
   - SlashCommand(*)
 metadata:
-  version: "0.8.0"
+  version: "0.8.1"
   repository: https://github.com/ZorCorp/kf-cli
   homepage: https://github.com/ZorCorp/kf-cli
 ---
@@ -343,7 +343,7 @@ frames when available, transcript otherwise.
 | Web content | `WebFetch` tool |
 | GitHub API | `gh api /repos/{owner}/{repo}/...` |
 | Publishing | `scripts/core/publish.sh` |
-| Quartz garden publishing | `scripts/core/quartz-publish.sh` (+ `quartz-bake.py`, `quartz-verify.sh`) |
+| Quartz garden publishing | `scripts/core/quartz-publish.sh` (+ `quartz-bake.py`, `quartz-html-stub.py`, `quartz-verify.sh`) |
 | Search | `curl` to Local REST API |
 | Share URLs | Python zlib + base64 |
 
