@@ -2,8 +2,9 @@
 # install.sh — kf-cli installer for ~/.agents/skills/kf-cli/
 #
 # Single source of truth: `~/.agents/skills/kf-cli/` holds the real files.
-# Each detected AI tool (Claude Code, Codex, Gemini CLI, Cursor, GitHub Copilot)
+# Each detected non-Claude AI tool (Codex, Antigravity, Cursor, GitHub Copilot)
 # gets a link from its skills directory pointing to the canonical location.
+# (Claude Code uses the zorskill marketplace; Gemini CLI reads ~/.agents/skills/ directly.)
 # Manage one place, every tool sees the update.
 #
 # Link type per platform:
@@ -34,10 +35,14 @@ FORCE_LINK=0
 
 # Tools to symlink into, in "name:target_path" form.
 # Target path is the per-tool skills dir; it will become a symlink → $INSTALL_DIR.
+# NOT listed, on purpose:
+#   • Claude Code — installs kf-cli via the zorskill plugin marketplace, so a
+#     ~/.claude/skills/ symlink would DUPLICATE it. Keep the two channels separate.
+#   • Gemini CLI — reads ~/.agents/skills/ ($INSTALL_DIR) natively, no symlink needed.
+# Antigravity's only global Agent-Skills dir is ~/.gemini/config/skills/.
 LINK_TARGETS=(
-    "claude-code:$HOME/.claude/skills/kf-cli"
     "codex:$HOME/.codex/skills/kf-cli"
-    "gemini-cli:$HOME/.gemini/skills/kf-cli"
+    "antigravity:$HOME/.gemini/config/skills/kf-cli"
     "cursor:$HOME/.cursor/skills/kf-cli"
     "github-copilot:$HOME/.copilot/skills/kf-cli"
 )
