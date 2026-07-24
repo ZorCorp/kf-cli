@@ -2,25 +2,41 @@
 
 All notable changes to kf-cli will be documented in this file.
 
+## [0.8.2] - 2026-07-24
+
+### Changed
+- HTML publishes now RENDER inline. The raw `.html` is copied byte-identical into
+  the garden's `quartz/static/embeds/…` tree, which Quartz copies to the build
+  verbatim (extension kept) so GitHub Pages serves it at `/static/embeds/…` as
+  `text/html` — the deck renders in the browser and inside the stub's iframe.
+  (0.8.1 copied the html under `content/`, where Quartz emits it extensionless and
+  GitHub Pages serves it as `application/octet-stream`, i.e. it downloaded instead
+  of rendering.) The indexed `<base>-embed.md` stub stays under `content/notes/…`
+  (unchanged — that is what makes the deck findable in Explorer/search); its link
+  and `<iframe>` now point at the static `/static/embeds/…` URL.
+- Verified live: the static deck serves `text/html` (HTTP 200) at both the `.html`
+  and extensionless forms; the stub's iframe renders the full deck; the stub stays
+  indexed with its title + `html-embed` tag.
+
 ## [0.8.1] - 2026-07-24
 
 ### Added
-- `/kf-cli:quartz` first-class `.html` publishing that actually RENDERS. The raw
-  file is copied byte-identical into the garden's `quartz/static/embeds/…` tree,
-  which Quartz copies to the build verbatim (extension kept) and GitHub Pages
-  serves at `/static/embeds/…` as `text/html` — so the deck renders in the
-  browser and inside an iframe. (A raw `.html` placed under `content/` is instead
-  emitted extensionless and served as `application/octet-stream`, which downloads
-  rather than rendering — hence the static route.) An indexed companion stub
-  `<base>-embed.md` stays under `content/` (title from the HTML `<title>`,
-  `tags: [html-embed]`, a link + an `<iframe>` pointing at the static URL) so the
-  deck shows up in Explorer/search. The `-embed` suffix keeps the stub's route
-  collision-safe.
+- `/kf-cli:quartz` first-class `.html` publishing: the raw file is copied
+  byte-identical AND an indexed companion stub `<base>-embed.md` is generated
+  (title from the HTML `<title>`, `tags: [html-embed]`, a link, and an `<iframe>`)
+  so the deck appears in Explorer/search — a raw `.html` alone is absent from
+  Quartz's content index. The `-embed` suffix keeps the stub's route collision-safe.
 - Pre-publish confirm gate: `quartz-publish.sh` gained a `--dry-run`/`--list`
-  mode that prints exactly what would publish (md + static html + stubs) and
-  changes nothing. `/kf-cli:quartz` now runs the dry-run, shows the file list,
-  and asks the user to confirm before pushing anything to the PUBLIC garden.
+  mode that prints exactly what would publish (md + html + stubs) and changes
+  nothing. `/kf-cli:quartz` now runs the dry-run, shows the file list, and asks
+  the user to confirm before pushing anything to the PUBLIC garden.
 - `scripts/core/quartz-html-stub.py` + `tests/test_quartz_html_stub.py`.
+
+### Notes
+- HTML in this release was copied under `content/` and served as
+  `application/octet-stream` on GitHub Pages (downloaded rather than rendering
+  inline); index visibility/title/tag/link worked. **Superseded by 0.8.2**, which
+  serves the html from `quartz/static/` as `text/html` so it renders.
 
 ## [0.8.0] - 2026-07-24
 
