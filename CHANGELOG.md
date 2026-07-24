@@ -2,6 +2,19 @@
 
 All notable changes to kf-cli will be documented in this file.
 
+## [0.8.0] - 2026-07-24
+
+### Added
+- `/kf-cli:quartz` — publish a note or whole folder to a Quartz v5 digital garden.
+  Preserves the `notes/` layer, refuses `access: private` notes (public garden),
+  prints a dry-run list before pushing, and bakes `dataview` (TABLE/TASK) and
+  `mapview` blocks to static markdown/Leaflet on the published copy (vault original
+  untouched; best-effort with graceful degradation).
+- `scripts/core/quartz-bake.py`, `scripts/core/quartz-publish.sh`,
+  `scripts/core/quartz-verify.sh`, and Tier A tests under `tests/`.
+- `/kf-cli:setup` now discovers a Quartz garden (`quartz_url`, `quartz_repo`);
+  keys stay empty for sharehub-only users.
+
 ## [0.7.3] - 2026-07-02
 
 - Add 'Updating This Skill' section: use install.sh, never npx skills (keeps commands/templates)

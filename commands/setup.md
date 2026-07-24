@@ -227,7 +227,7 @@ if [[ -n "$QUARTZ_PATH" ]]; then
     #    Use [[:space:]] (not \s) so it works on BSD sed (macOS) as well as GNU.
     BASEURL=$(grep -E '^[[:space:]]*baseUrl:' "$QUARTZ_PATH/quartz.config.yaml" | head -1 | sed -E 's/^[[:space:]]*baseUrl:[[:space:]]*//; s/["'\'' ]//g')
     if [[ -n "$BASEURL" ]]; then
-        # baseUrl in v5 is bare host (e.g. shub.zorro.hk) — prepend https:// if no scheme
+        # baseUrl in v5 is a bare host (e.g. garden.example.com) — prepend https:// if no scheme
         [[ "$BASEURL" =~ ^https?:// ]] && QUARTZ_URL="$BASEURL" || QUARTZ_URL="https://$BASEURL"
         echo "   Garden URL: $QUARTZ_URL (from quartz.config.yaml)"
     fi
