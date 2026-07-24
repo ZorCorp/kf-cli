@@ -191,6 +191,64 @@ fi
 echo ""
 ```
 
+## Step 5b: Configure Quartz Garden (Optional Publishing Target)
+
+```bash
+echo "🌱 Configuring Quartz garden (optional)..."
+echo ""
+
+EXISTING_QUARTZ=""
+if [[ -f ".claude/config.local.json" ]]; then
+    EXISTING_QUARTZ=$(jq -r '.quartz_repo // empty' .claude/config.local.json | sed "s|^~|$HOME|")
+fi
+
+QUARTZ_DEFAULT_PATHS=(
+    "$EXISTING_QUARTZ"
+    "$HOME/Dev/shub"
+    "$HOME/shub"
+)
+
+QUARTZ_PATH=""
+for path in "${QUARTZ_DEFAULT_PATHS[@]}"; do
+    # Must be a git repo AND a Quartz checkout (quartz.config.yaml distinguishes it)
+    if [[ -n "$path" && -d "$path/.git" && -f "$path/quartz.config.yaml" ]]; then
+        QUARTZ_PATH="$path"
+        break
+    fi
+done
+
+QUARTZ_URL=""
+if [[ -n "$QUARTZ_PATH" ]]; then
+    echo "✅ Quartz garden found at: $QUARTZ_PATH"
+    QREMOTE=$(cd "$QUARTZ_PATH" && git remote get-url origin 2>/dev/null || echo "none")
+    echo "   Remote: $QREMOTE"
+
+    # 1) Derive URL from quartz.config.yaml baseUrl (under configuration:)
+    #    Use [[:space:]] (not \s) so it works on BSD sed (macOS) as well as GNU.
+    BASEURL=$(grep -E '^[[:space:]]*baseUrl:' "$QUARTZ_PATH/quartz.config.yaml" | head -1 | sed -E 's/^[[:space:]]*baseUrl:[[:space:]]*//; s/["'\'' ]//g')
+    if [[ -n "$BASEURL" ]]; then
+        # baseUrl in v5 is bare host (e.g. shub.zorro.hk) — prepend https:// if no scheme
+        [[ "$BASEURL" =~ ^https?:// ]] && QUARTZ_URL="$BASEURL" || QUARTZ_URL="https://$BASEURL"
+        echo "   Garden URL: $QUARTZ_URL (from quartz.config.yaml)"
+    fi
+    # 2) Fallback: content/CNAME
+    if [[ -z "$QUARTZ_URL" && -f "$QUARTZ_PATH/content/CNAME" ]]; then
+        CNAME=$(tr -d '[:space:]' < "$QUARTZ_PATH/content/CNAME")
+        [[ -n "$CNAME" ]] && QUARTZ_URL="https://$CNAME" && echo "   Garden URL: $QUARTZ_URL (from CNAME)"
+    fi
+    # 3) Fallback: github.io from remote
+    if [[ -z "$QUARTZ_URL" && "$QREMOTE" =~ github.com[:/]([^/]+)/([^/.]+) ]]; then
+        QUARTZ_URL="https://${BASH_REMATCH[1]}.github.io/${BASH_REMATCH[2]}"
+        echo "   Garden URL: $QUARTZ_URL (from remote)"
+    fi
+else
+    echo "ℹ️  No Quartz garden found (checked ~/Dev/shub, ~/shub)."
+    echo "   Quartz publishing is optional — /kf-cli:quartz will stay disabled until configured."
+fi
+
+echo ""
+```
+
 ## Step 6: Create Vault Configuration
 
 ```bash
@@ -202,9 +260,12 @@ mkdir -p .claude
 # Set defaults if not discovered
 SHAREHUB_URL="${SHAREHUB_URL:-}"
 SHAREHUB_PATH="${SHAREHUB_PATH:-}"
+QUARTZ_URL="${QUARTZ_URL:-}"
+QUARTZ_PATH="${QUARTZ_PATH:-}"
 
 # Convert to ~ notation for config
 SHAREHUB_PATH_CONFIG="${SHAREHUB_PATH/#$HOME/~}"
+QUARTZ_PATH_CONFIG="${QUARTZ_PATH/#$HOME/~}"
 
 # Create or update config
 cat > .claude/config.local.json << EOF
@@ -212,6 +273,8 @@ cat > .claude/config.local.json << EOF
   "vault_path": "$VAULT_PATH",
   "sharehub_url": "$SHAREHUB_URL",
   "sharehub_repo": "$SHAREHUB_PATH_CONFIG",
+  "quartz_url": "$QUARTZ_URL",
+  "quartz_repo": "$QUARTZ_PATH_CONFIG",
   "enable_short_commands": false
 }
 EOF
@@ -220,6 +283,8 @@ echo "✅ Created .claude/config.local.json"
 echo "   vault_path: $VAULT_PATH"
 echo "   sharehub_url: $SHAREHUB_URL"
 echo "   sharehub_repo: $SHAREHUB_PATH_CONFIG"
+echo "   quartz_url: $QUARTZ_URL"
+echo "   quartz_repo: $QUARTZ_PATH_CONFIG"
 ```
 
 ## Step 7: Enable Short Commands (Optional)
@@ -261,7 +326,7 @@ if [[ "$ARGUMENTS" == *"--enable-short-commands"* ]]; then
     # Wrappers forward to /kf-cli:<name> so all logic stays in the plugin and
     # the short commands never drift when kf-cli is updated.
     COPIED=0
-    for cmd in capture.md watch.md youtube-note.md idea.md gitingest.md study-guide.md publish.md semantic-search.md share.md; do
+    for cmd in capture.md watch.md youtube-note.md idea.md gitingest.md study-guide.md publish.md quartz.md semantic-search.md share.md; do
         src="$PLUGIN_COMMANDS/$cmd"
         [[ -f "$src" ]] || continue
         name="${cmd%.md}"
@@ -330,6 +395,7 @@ echo "  /kf-cli:idea           - Quick idea capture"
 echo "  /kf-cli:gitingest      - GitHub repository analysis"
 echo "  /kf-cli:study-guide    - Generate study materials"
 echo "  /kf-cli:publish        - Publish to GitHub Pages"
+echo "  /kf-cli:quartz         - Publish note/folder to Quartz digital garden"
 echo "  /kf-cli:share          - Generate shareable URL"
 echo "  /kf-cli:semantic-search - Search vault by meaning"
 echo ""
