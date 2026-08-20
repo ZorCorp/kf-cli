@@ -9,6 +9,8 @@ set -e  # Exit on error
 NOTE_FILE="$1"
 NOTE_FILE="${NOTE_FILE#@}"   # strip a leading @ (Claude Code file-reference prefix, e.g. @notes/foo.md)
 VAULT_PATH="${2:-$(pwd)}"
+# normalize an absolute path inside the vault to a vault-relative one
+case "$NOTE_FILE" in "$VAULT_PATH"/*) NOTE_FILE="${NOTE_FILE#$VAULT_PATH/}";; esac
 
 # Read config from vault
 CONFIG_FILE="$VAULT_PATH/.claude/config.local.json"

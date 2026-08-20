@@ -24,6 +24,8 @@ for arg in "$@"; do
     esac
 done
 VAULT_PATH="${VAULT_PATH:-$(pwd)}"
+# normalize an absolute path inside the vault to a vault-relative one
+case "$INPUT" in "$VAULT_PATH"/*) INPUT="${INPUT#$VAULT_PATH/}";; esac
 
 # ── Config ────────────────────────────────────────────────────────────────────
 CONFIG_FILE="$VAULT_PATH/.claude/config.local.json"
