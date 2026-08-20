@@ -11,6 +11,7 @@ All commands use the `/kf-cli:` prefix. Short commands (e.g., `/capture`) can be
 | `capture` | Smart router -- delegates to the right handler | Any content |
 | `watch` | Note from any video URL; auto-picks instructional vs meeting template | Any video URL (YouTube, Vimeo, Loom, Zoom recordings, …) or YouTube ID |
 | `youtube-note` | _Deprecated — use `watch`_. YouTube-only transcript note | YouTube URL or video ID |
+| `skillify` | Turn a captured note (+ transcript) into a compliant agent skill bundled in the plugin under `skills/<slug>/`; grills for the spec, drives book-to-skill, validates + scans | Note filename or video URL |
 | `idea` | Quick idea capture | Plain text |
 | `gitingest` | GitHub repository analysis digest | GitHub URL |
 | `study-guide` | Comprehensive study guide | URL, file path, or text |
