@@ -7,6 +7,7 @@
 set -e  # Exit on error
 
 NOTE_FILE="$1"
+NOTE_FILE="${NOTE_FILE#@}"   # strip a leading @ (Claude Code file-reference prefix, e.g. @notes/foo.md)
 VAULT_PATH="${2:-$(pwd)}"
 
 # Read config from vault

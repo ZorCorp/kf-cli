@@ -10,6 +10,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 INPUT="$1"; shift || true
+INPUT="${INPUT#@}"   # strip a leading @ (Claude Code file-reference prefix, e.g. @notes/foo.md)
 
 # Flags may appear in any order after INPUT; the first non-flag arg is VAULT_PATH.
 VAULT_PATH=""
